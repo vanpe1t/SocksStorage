@@ -20,6 +20,8 @@ import java.util.ArrayList;
 @Service
 public class TransactionsServiceImpl implements TransactionsService {
 
+    static ObjectMapper objectMapper = new ObjectMapper();
+
     private ArrayList<Transaction> transactions = new ArrayList<Transaction>();
     private final FileService fileService;
 
@@ -36,9 +38,7 @@ public class TransactionsServiceImpl implements TransactionsService {
         try {
             String json = fileService.readFromFile(fileService.getPath(FileType.TRANSACTION));
             if (json != null) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.registerModule(new JavaTimeModule());
-
                 transactions =  objectMapper.readValue(json, new TypeReference<ArrayList<Transaction>>(){});
             }
         } catch (JsonProcessingException e) {
@@ -55,7 +55,6 @@ public class TransactionsServiceImpl implements TransactionsService {
 
             transactions.add(transaction);
 
-            ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
 
             String json = null;

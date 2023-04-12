@@ -29,7 +29,7 @@ public class FileServiceImpl implements FileService {
         } else if (fileType == FileType.TRANSACTION) {
             return Path.of(dataFilePath, transactionsFileName);
         } else {
-            return null;
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -48,7 +48,7 @@ public class FileServiceImpl implements FileService {
         } else if (fileType == FileType.TRANSACTION) {
             path = Path.of(dataFilePath, transactionsFileName);
         } else {
-            path = null;
+            throw new UnsupportedOperationException();
         }
 
         cleanDataFile(path);
@@ -83,6 +83,14 @@ public class FileServiceImpl implements FileService {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    @Override
+    public void clearFile(FileType fileType) {
+
+        Path path = getPath(fileType);
+        cleanDataFile(path);
+
     }
 
 }

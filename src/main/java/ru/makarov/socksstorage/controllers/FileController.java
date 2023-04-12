@@ -83,9 +83,7 @@ public class FileController {
     )
     public ResponseEntity<Void> uploadDataFileSocks(@RequestParam MultipartFile file) {
 
-        Path path = fileService.getPath(FileType.SOCKS);
-
-        fileService.cleanDataFile(path);
+        fileService.clearFile(FileType.SOCKS);
 
         File dataFile = fileService.getFile(FileType.SOCKS);
 
@@ -152,9 +150,7 @@ public class FileController {
     )
     public ResponseEntity<Void> uploadDataFileTransactions(@RequestParam MultipartFile file) {
 
-        Path path = fileService.getPath(FileType.TRANSACTION);
-
-        fileService.cleanDataFile(path);
+        fileService.clearFile(FileType.TRANSACTION);
 
         File dataFile = fileService.getFile(FileType.TRANSACTION);
 

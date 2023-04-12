@@ -45,13 +45,13 @@ public class SocksController {
                     description = "Список успешно получен.",
                     content = {
                             @Content(
-                                    mediaType = "List<Socks>"
+                                    mediaType = "ArrayList<Socks>"
                             )
                     }
             )
     }
     )
-    public ResponseEntity<List<Socks>> getSocks() {
+    public ResponseEntity<ArrayList<Socks>> getSocks() {
         return ResponseEntity.ok(socksService.getSocksList());
     }
 
@@ -101,7 +101,7 @@ public class SocksController {
                                                         @RequestParam(name = "cottonMax", required = false) Integer cottonMax) {
 
        if (cottonMin != null && cottonMax != null) {
-           return ResponseEntity.internalServerError().build();
+           return ResponseEntity.ok(socksService.getQuantityCotton(cottonMax, cottonMin ,size, color));
        } else if (cottonMin != null && cottonMax == null) {
            return ResponseEntity.ok(socksService.getQuantityCottonMin(cottonMin, size, color));
        } else if (cottonMin == null && cottonMax != null) {

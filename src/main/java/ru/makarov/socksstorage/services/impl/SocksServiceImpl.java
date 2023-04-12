@@ -14,12 +14,11 @@ import ru.makarov.socksstorage.services.TransactionsService;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 @Service
 public class SocksServiceImpl implements SocksService {
 
+    static ObjectMapper objectMapper = new ObjectMapper();
     private ArrayList<Socks> socksList = new ArrayList<>();
     private final FileService fileService;
 
@@ -40,7 +39,7 @@ public class SocksServiceImpl implements SocksService {
         try {
             String json = fileService.readFromFile(fileService.getPath(FileType.SOCKS));
             if (json != null) {
-                socksList =  new ObjectMapper().readValue(json, new TypeReference<ArrayList<Socks>>(){});
+                socksList =  objectMapper.readValue(json, new TypeReference<ArrayList<Socks>>(){});
             }
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -58,12 +57,12 @@ public class SocksServiceImpl implements SocksService {
         if (finded == null) {
             socksList.add(socks);
         } else {
-            finded.setStock(socks.getStock());
+            finded.setStock(finded.getStock() + socks.getStock());
         }
 
         String json = null;
         try {
-            json = new ObjectMapper().writeValueAsString(socksList);
+            json = objectMapper.writeValueAsString(socksList);
             fileService.saveToFile(json, FileType.SOCKS);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -98,6 +97,19 @@ public class SocksServiceImpl implements SocksService {
     }
 
     @Override
+    public Integer getQuantityCotton(Integer cottonMax, Integer cottonMin, Size size, Colors color) {
+        Integer quantity = 0;
+        for (Socks socks: socksList) {
+            if (socks.getCottonPart() <= cottonMax && socks.getCottonPart() >= cottonMin
+                                                   && size.equals(socks.getSize())
+                                                   && color.equals(socks.getColors())) {
+                quantity += socks.getStock();
+            }
+        }
+        return quantity;
+    }
+
+    @Override
     public Boolean sellSocks(Socks socks) {
         return minusSocks(socks);
     }
@@ -109,29 +121,32 @@ public class SocksServiceImpl implements SocksService {
 
     public boolean minusSocks(Socks socks) {
 
-        boolean done = false;
-
-        Socks finded = socksList
+         Socks finded = socksList
                 .stream()
                 .filter(thisSocks -> (thisSocks.equals(socks)))
                 .findFirst()
                 .orElse(null);
 
         if (finded != null) {
-            finded.setStock(finded.getStock() - socks.getStock());
-            done = true;
+
+            if (finded.getStock() >= socks.getStock()) {
+                finded.setStock(finded.getStock() - socks.getStock());
+            } else {
+                return false;
+            }
+
+            try {
+                String json = null;
+                json = objectMapper.writeValueAsString(socksList);
+                fileService.saveToFile(json, FileType.SOCKS);
+
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
+            return true;
         }
 
-        String json = null;
-
-        try {
-            json = new ObjectMapper().writeValueAsString(socksList);
-            fileService.saveToFile(json, FileType.SOCKS);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        return done;
+        return false;
     }
-
 }
